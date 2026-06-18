@@ -1,0 +1,57 @@
+// Day 1: Logic Gates Implementation
+// Implement NOT/AND/OR/NAND/NOR/XOR gates
+
+module gates_1bit (
+    input  wire a,
+    input  wire b,
+    output wire not_a,
+    output wire and_ab,
+    output wire or_ab,
+    output wire nand_ab,
+    output wire nor_ab,
+    output wire xor_ab
+);
+
+    // Gate implementations
+    assign not_a   = ~a;       // NOT gate
+    assign and_ab  = a & b;    // AND gate
+    assign or_ab   = a | b;    // OR gate
+    assign nand_ab = ~(a & b); // NAND gate
+    assign nor_ab  = ~(a | b); // NOR gate
+    assign xor_ab  = a ^ b;    // XOR gate
+
+endmodule
+
+// Testbench to verify all gates
+module tb_gates_1bit;
+
+    reg a, b;
+    wire not_a, and_ab, or_ab, nand_ab, nor_ab, xor_ab;
+
+    // Instantiate the gate module
+    gates_1bit uut (
+        .a(a),
+        .b(b),
+        .not_a(not_a),
+        .and_ab(and_ab),
+        .or_ab(or_ab),
+        .nand_ab(nand_ab),
+        .nor_ab(nor_ab),
+        .xor_ab(xor_ab)
+    );
+
+    initial begin
+        $display("Time | a b | NOT AND OR NAND NOR XOR");
+        $monitor("%4d | %d %d | %d  %d   %d  %d   %d  %d", 
+                 $time, a, b, not_a, and_ab, or_ab, nand_ab, nor_ab, xor_ab);
+        
+        // Test all 4 input combinations
+        a = 0; b = 0; #10;
+        a = 0; b = 1; #10;
+        a = 1; b = 0; #10;
+        a = 1; b = 1; #10;
+        
+        $finish;
+    end
+
+endmodule
