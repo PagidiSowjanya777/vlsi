@@ -1,57 +1,66 @@
-// Day 1: Logic Gates Implementation
-// Implement NOT/AND/OR/NAND/NOR/XOR gates
-
-module gates_1bit (
-    input  wire a,
-    input  wire b,
-    output wire not_a,
-    output wire and_ab,
-    output wire or_ab,
-    output wire nand_ab,
-    output wire nor_ab,
-    output wire xor_ab
+module cnt_sync_reset_2bit (
+    input  wire clk,
+    input  wire reset,
+    input  wire enable,
+    output reg  [1:0] count
 );
 
-    // Gate implementations
-    assign not_a   = ~a;       // NOT gate
-    assign and_ab  = a & b;    // AND gate
-    assign or_ab   = a | b;    // OR gate
-    assign nand_ab = ~(a & b); // NAND gate
-    assign nor_ab  = ~(a | b); // NOR gate
-    assign xor_ab  = a ^ b;    // XOR gate
+    // Use non-blocking assignment (<=) for sequential logic
+    always @(posedge clk) begin
+        if (reset)
+            count <= 2'b00;
+        else if (enable)
+            count <= count + 1'b1;
+    end
 
 endmodule
+module tb_cnt_sync_reset;
 
-// Testbench to verify all gates
-module tb_gates_1bit;
+    reg clk, reset, enable;
+    wire [1:0] count;
 
-    reg a, b;
-    wire not_a, and_ab, or_ab, nand_ab, nor_ab, xor_ab;
-
-    // Instantiate the gate module
-    gates_1bit uut (
-        .a(a),
-        .b(b),
-        .not_a(not_a),
-        .and_ab(and_ab),
-        .or_ab(or_ab),
-        .nand_ab(nand_ab),
-        .nor_ab(nor_ab),
-        .xor_ab(xor_ab)
+    // Instantiate the Design Under Test (DUT)
+    cnt_sync_reset_2bit uut (
+        .clk(clk),
+        .reset(reset),
+        .enable(enable),
+        .count(count)
     );
 
+    // Clock generation: 10 time unit period
+    always #5 clk = ~clk;
+
     initial begin
-        $display("Time | a b | NOT AND OR NAND NOR XOR");
-        $monitor("%4d | %d %d | %d  %d   %d  %d   %d  %d", 
-                 $time, a, b, not_a, and_ab, or_ab, nand_ab, nor_ab, xor_ab);
+        // Dump waves for EPWave
+        $dumpfile("dump.vcd");
+        $dumpvars(0, tb_cnt_sync_reset);
         
-        // Test all 4 input combinations
-        a = 0; b = 0; #10;
-        a = 0; b = 1; #10;
-        a = 1; b = 0; #10;
-        a = 1; b = 1; #10;
+        // Initialize signals
+        clk = 0; reset = 1; enable = 0; 
+        #15;
+        
+        // Apply stimulus
+        reset = 0; enable = 1;
+        
+        $display("Time | reset | enable | count");
+        $monitor("%4d |   %d   |    %d   |   %d", $time, reset, enable, count);
+        
+        #100;
+        reset = 1; #10;
+        reset = 0;
+        
+        #50;
+        enable = 0;
+        #30;
         
         $finish;
     end
 
 endmodule
+
+
+
+
+output and Schematic:
+
+
