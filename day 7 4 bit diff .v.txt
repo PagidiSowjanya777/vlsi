@@ -1,0 +1,21 @@
+// Code your design here
+module sub4(input [7:0] a, b, output [7:0] diff, output borrow);
+  assign {borrow, diff} = a - b;
+endmodule
+// Code your testbench here
+// or browse Examples
+
+module tb;
+  reg [7:0] a, b;
+  wire [7:0] diff;
+  wire borrow;
+  sub4 u(.a(a), .b(b), .diff(diff), .borrow(borrow));
+  initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb);
+    a = 100; b = 25; #5;
+    $display("a=%d b=%d borrow=%d diff=%d", a, b, borrow, diff);
+    $finish;
+  end
+endmodule
+
