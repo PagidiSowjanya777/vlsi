@@ -1,0 +1,30 @@
+module tb;
+  reg [3:0] a, b;
+  reg [1:0] sel;
+  wire [3:0] y;
+
+  // Instantiate the design
+  alu4 u(.a(a), .b(b), .sel(sel), .y(y));
+
+  initial begin
+    // Setup waveform dump
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb);
+
+    $display("---------------------------");
+
+    // Test Cases
+    a=5; b=3;
+    
+    sel=0; #5; $display("%b  | Add    | %d  %d | %d", sel, a, b, y);
+    sel=1; #5; $display("%b  | Sub    | %d  %d | %d", sel, a, b, y);
+    sel=2; #5; $display("%b  | AND    | %d  %d | %d"
+    sel=3; #5; $display("%b  | OR     | %d  %d | %d", sel, a, b, y);
+
+    $display("---------------------------");
+    $finish;
+  end
+endmodule
+
+
+n
