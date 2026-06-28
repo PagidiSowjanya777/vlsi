@@ -1,0 +1,62 @@
+module traffic_light (
+    input clk,
+    input reset,
+    output reg [2:0] light
+);
+
+  // Initialize state to 0 to prevent 'x' at startup
+  reg [1:0] state = 2'b00;
+
+  always @(posedge clk) begin
+    if (reset) begin
+      state <= 2'b00;
+    end else begin
+      // Simple counter logic to cycle through states
+      state <= state + 1;
+    end
+  end
+
+  // Combinational logic for light output
+  always @(*) begin
+    case (state)
+      2'b00: light = 3'b100; // Red
+      2'b01: light = 3'b010; // Yellow
+      2'b10: light = 3'b001; // Green
+      default: light = 3'b100;
+    endcase
+  end
+endmodule
+module tb;
+  reg clk = 0;
+  reg reset = 0;
+  wire [2:0] light;
+
+  // Clock generation: 10ns period
+  always #5 clk = ~clk;
+
+  // Instantiate the design
+  traffic_light u (
+    .clk(clk),
+    .reset(reset),
+    .light(light)
+  );
+
+  initial begin
+    // Prepare for waveform viewing
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb);
+
+    // Apply Reset
+    reset = 1;
+    #15;         // Hold reset for 1.5 clock cycles
+    reset = 0;   // Release reset
+    
+    #100;        // Run for 100ns
+    
+    $display("Simulation complete. Light value: %b", light);
+    $finish;
+  end
+endmodule
+
+
+
