@@ -1,0 +1,53 @@
+// Code your design here
+module counter4 (
+    input clk,
+    input rst,      // asynchronous reset, active high
+    input en,       // synchronous enable
+    output reg [3:0] q
+);
+
+always @(posedge clk or posedge rst) begin
+    if (rst)
+        q <= 4'b0000;
+    else if (en)
+        q <= q + 4'b0001;
+end
+
+endmodule
+// Code your testbench here
+// or browse Examples
+module tb;
+    reg clk, rst, en;
+    wire [3:0] q;
+
+    counter4 dut (
+        .clk(clk),
+        .rst(rst),
+        .en(en),
+        .q(q)
+    );
+
+    always #5 clk = ~clk;
+
+    initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars(0, tb);
+
+        clk = 0;
+        rst = 1;
+        en  = 0;
+
+        #12 rst = 0;
+        #10 en  = 1;
+        #40 en  = 0;
+        #10 rst = 1;
+        #10 rst = 0;
+        #20 en  = 1;
+
+        #40 $finish;
+    end
+endmodule
+
+
+
+
