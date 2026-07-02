@@ -1,35 +1,49 @@
-/*verilator lint_off ALL*/
-
-module kmap_parity3 (
-    input  wire a,
-    input  wire b,
-    input  wire c,
-    output wire f
+// Code your design here
+module clk_div16(
+    input clk,
+    input rst,
+    output reg clk_out
 );
-    assign f = a ^ b ^ c;
+
+reg [3:0] count;
+
+always @(posedge clk or posedge rst) begin
+    if (rst) begin
+        count   <= 4'b0000;
+        clk_out <= 1'b0;
+    end else begin
+        count <= count + 1'b1;
+        if (count == 4'b1111)
+            clk_out <= ~clk_out;
+    end
+end
+
 endmodule
+// Code your testbench here
+// or browse Examples
+module tb;
+    reg clk, rst;
+    wire clk_out;
 
-module tb_kmap_parity3;
-    reg a, b, c;
-    wire f;
+    clk_div16 dut(
+        .clk(clk),
+        .rst(rst),
+        .clk_out(clk_out)
+    );
 
-    kmap_parity3 uut (.a(a), .b(b), .c(c), .f(f));
+    always #5 clk = ~clk;
 
     initial begin
         $dumpfile("dump.vcd");
-        $dumpvars(0, tb_kmap_parity3);
+        $dumpvars(0, tb);
 
-        $display("Time | a b c | f");
-        $monitor("%4d | %d %d %d | %d", $time, a, b, c, f);
-        
-        a = 0; b = 0; c = 0; #5;
-        a = 0; b = 0; c = 1; #5;
-        a = 0; b = 1; c = 0; #5;
-        a = 0; b = 1; c = 1; #5;
-        a = 1; b = 0; c = 0; #5;
-        a = 1; b = 0; c = 1; #5;
-        a = 1; b = 1; c = 0; #5;
-        a = 1; b = 1; c = 1; #5;
-        $finish;
+        clk = 0;
+        rst = 1;
+        #12 rst = 0;
+
+        #500 $finish;
     end
 endmodule
+
+
+
