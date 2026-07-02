@@ -20,7 +20,7 @@ end
 
 endmodule
 // Code your testbench here
-// or browse Examples
+
 module tb;
     reg clk, rst;
     wire clk_out;
