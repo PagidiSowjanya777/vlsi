@@ -1,0 +1,70 @@
+// Code your design here
+module shift_register (
+    input  wire clk,
+    input  wire rst,
+    input  wire sin,
+    output reg  [3:0] q,
+    output wire sout
+);
+
+always @(posedge clk or posedge rst) begin
+    if (rst)
+        q <= 4'b0000;
+    else
+        q <= {q[2:0], sin};
+end
+
+assign sout = q[3];
+
+endmodule
+// Code your testbench here
+// or browse Examples
+`timescale 1ns/1ps
+
+module shift_register_tb;
+
+reg clk;
+reg rst;
+reg sin;
+wire [3:0] q;
+wire sout;
+
+shift_register dut (
+    .clk(clk),
+    .rst(rst),
+    .sin(sin),
+    .q(q),
+    .sout(sout)
+);
+
+initial clk = 0;
+always #5 clk = ~clk;
+
+initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, shift_register_tb);
+
+    rst = 1;
+    sin = 0;
+    #12;
+
+    rst = 0;
+
+    sin = 1; #10;
+    sin = 0; #10;
+    sin = 1; #10;
+    sin = 1; #10;
+    sin = 0; #10;
+    sin = 1; #10;
+
+    #20;
+    $finish;
+end
+
+initial begin
+    $monitor("time=%0t rst=%b sin=%b q=%b sout=%b", $time, rst, sin, q, sout);
+end
+
+endmodule
+
+
