@@ -1,0 +1,64 @@
+`timescale 1ns / 1ps
+
+module alu_4bit (
+    input [3:0] A, B,
+    input [1:0] sel,
+    output reg [3:0] out
+);
+    always @(*) begin
+        case(sel)
+            2'b00: out = A + B;
+            2'b01: out = A - B;
+            2'b10: out = A & B;
+            2'b11: out = A | B;
+            default: out = 4'b0000;
+        endcase
+    end
+endmodule
+`timescale 1ns / 1ps
+
+module alu_tb; // Use a different name for the testbench module
+    reg [3:0] A, B;
+    reg [1:0] sel;
+    wire [3:0] out;
+
+    // Instantiate Unit Under Test (UUT)
+    alu_4bit uut (
+        .A(A), .B(B), .sel(sel), .out(out)
+    );
+
+    initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars(0, alu_tb);
+
+        $display("Time | Sel | A | B | Result");
+        $display("-----------------------------");
+        $monitor("%4t | %b | %b | %b | %b", $time, sel, A, B, out);
+
+        apply_test(2'b00, 4'd5, 4'd3);
+        apply_test(2'b01, 4'd8, 4'd2);
+        apply_test(2'b10, 4'b1100, 4'b1010);
+        apply_test(2'b11, 4'b1100, 4'b1010);
+
+        #10 $finish;
+    end
+
+    task apply_test(input [1:0] s, input [3:0] a, input [3:0] b);
+        begin
+            sel = s; A = a; B = b;
+            #10;
+        end
+    endtask
+endmodule
+
+
+
+
+
+
+
+
+
+
+
+
