@@ -1,0 +1,68 @@
+module shift_register_4bit (
+    input wire clk,
+    input wire rst,      // Active-high reset
+    input wire data_in,  // Serial input
+    output reg [3:0] q   // Parallel output
+);
+
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            q <= 4'b0000; // Clear the register
+        end else begin
+            // Shift existing bits to the left and load new bit at LSB
+            q <= {q[2:0], data_in};
+        end
+    end
+endmodule
+`timescale 1ns / 1ps
+
+module tb_shift_register();
+
+    // 1. Declare inputs as regs and outputs as wires
+    reg clk;
+    reg rst;
+    reg data_in;
+    wire [3:0] q;
+
+    // 2. Instantiate the Unit Under Test (UUT)
+    shift_register_4bit uut (
+        .clk(data_in_clk), // Connect these to your actual module name
+        .rst(rst),
+        .data_in(data_in),
+        .q(q)
+    );
+
+    // 3. Clock Generation (10ns period)
+    always #5 clk = ~clk;
+
+    // 4. Stimulus Process
+    initial begin
+        // Setup waveform file
+        $dumpfile("dump.vcd");
+        $dumpvars(0, tb_shift_register);
+
+        // Initialize signals
+        clk = 0;
+        rst = 1;
+        data_in = 0;
+
+        // Apply Reset
+        #15 rst = 0;
+
+        // Feed serial data (e.g., 1, 1, 0, 1)
+        #10 data_in = 1;
+        #10 data_in = 1;
+        #10 data_in = 0;
+        #10 data_in = 1;
+
+        // Hold for a while to see the shift
+        #20;
+        
+        $finish;
+    end
+endmodule
+
+
+
+
+
