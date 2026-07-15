@@ -1,0 +1,66 @@
+// Code your design here
+module t_ff (
+    input clk,
+    input rst,
+    input t,
+    output reg q
+);
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            q <= 1'b0;      // Reset output to 0
+        end else if (t) begin
+            q <= ~q;        // Toggle output when T is 1
+        end
+    end
+endmodule
+// Code your testbench here
+// or browse Examples
+module tb_t_ff;
+    reg clk;
+    reg rst;
+    reg t;
+    wire q;
+
+    // Instantiate the T flip-flop
+    t_ff uut (
+        .clk(clk),
+        .rst(rst),
+        .t(t),
+        .q(q)
+    );
+
+    // Clock generation (10 time units period)
+    always #5 clk = ~clk;
+
+    initial begin
+        // Required for EDA Playground to generate waveforms
+        $dumpfile("dump.vcd");
+        $dumpvars(1, tb_t_ff);
+        
+        // Initialize inputs
+        clk = 0;
+        rst = 1;
+        t = 0;
+
+        // Release reset
+        #10 rst = 0;
+        
+        // Test Case 1: Toggle
+        #10 t = 1;
+        
+        // Test Case 2: Hold state
+        #20 t = 0;
+        
+        // Test Case 3: Toggle again
+        #20 t = 1;
+        
+        // Test Case 4: Hold state
+        #30 t = 0;
+        
+        // End simulation
+        #20 $finish;
+    end
+endmodule
+
+
+
