@@ -1,0 +1,62 @@
+// Code your design here
+module gray_to_binary #(
+    parameter WIDTH = 4  // Parameterizable bit width (default is 4-bit)
+)(
+    input  wire [WIDTH-1:0] gray,
+    output reg  [WIDTH-1:0] binary
+);
+
+    integer i;
+
+    always @(*) begin
+        // The MSB (Most Significant Bit) remains the same
+        binary[WIDTH-1] = gray[WIDTH-1];
+        
+        // Compute the remaining bits using an XOR chain
+        for (i = WIDTH-2; i >= 0; i = i - 1) begin
+            binary[i] = binary[i+1] ^ gray[i];
+        end
+    end
+
+endmodule`timescale 1ns / 1ps
+
+module tb_gray_to_binary;
+
+    parameter WIDTH = 4;
+
+    // Inputs
+    reg [WIDTH-1:0] gray;
+
+    // Outputs
+    wire [WIDTH-1:0] binary;
+
+    // Instantiate the Unit Under Test (UUT)
+    gray_to_binary #(.WIDTH(WIDTH)) uut (
+        .gray(gray),
+        .binary(binary)
+    );
+
+    integer i;
+
+    initial begin
+        // Add these lines for EDA Playground's EPWave to open
+        $dumpfile("dump.vcd");
+        $dumpvars(0, tb_gray_to_binary);
+
+        // Display header
+        $display("Time\tGray\tBinary");
+        $display("---------------------");
+        
+        // Loop through all 4-bit values (0 to 15)
+        for (i = 0; i < 16; i = i + 1) begin
+            gray = i;
+            #10; // Wait 10 time units
+            $display("%0t\t%b\t%b", $time, gray, binary);
+        end
+        
+        $finish;
+    end
+
+endmodule
+
+
