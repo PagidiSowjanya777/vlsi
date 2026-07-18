@@ -1,0 +1,81 @@
+module digital_laws (
+    input wire A, B, C,
+    output wire demorgan1_lhs, demorgan1_rhs,
+    output wire demorgan2_lhs, demorgan2_rhs,
+    output wire dist1_lhs, dist1_rhs,
+    output wire dist2_lhs, dist2_rhs,
+    output wire identity_and, identity_or,
+    output wire idempotent_and, idempotent_or
+);
+
+    // De Morgan's Laws
+    assign demorgan1_lhs = ~(A & B);
+    assign demorgan1_rhs = (~A) | (~B);
+    assign demorgan2_lhs = ~(A | B);
+    assign demorgan2_rhs = (~A) & (~B);
+
+    // Distributive Laws
+    assign dist1_lhs = A & (B | C);
+    assign dist1_rhs = (A & B) | (A & C);
+    assign dist2_lhs = A | (B & C);
+    assign dist2_rhs = (A | B) & (A | C);
+
+    // Identity and Idempotent Laws
+    assign identity_and   = A & 1'b1;
+    assign identity_or    = A | 1'b0;
+    assign idempotent_and = A & A;
+    assign idempotent_or  = A | A;
+
+endmodule
+`timescale 1ns / 1ps
+
+module tb_digital_laws;
+
+    reg A, B, C;
+    wire demorgan1_lhs, demorgan1_rhs;
+    wire demorgan2_lhs, demorgan2_rhs;
+    wire dist1_lhs, dist1_rhs;
+    wire dist2_lhs, dist2_rhs;
+    wire identity_and, identity_or;
+    wire idempotent_and, idempotent_or;
+
+    digital_laws uut (
+        .A(A), .B(B), .C(C),
+        .demorgan1_lhs(demorgan1_lhs), .demorgan1_rhs(demorgan1_rhs),
+        .demorgan2_lhs(demorgan2_lhs), .demorgan2_rhs(demorgan2_rhs),
+        .dist1_lhs(dist1_lhs), .dist1_rhs(dist1_rhs),
+        .dist2_lhs(dist2_lhs), .dist2_rhs(dist2_rhs),
+        .identity_and(identity_and), .identity_or(identity_or),
+        .idempotent_and(idempotent_and), .idempotent_or(idempotent_or)
+    );
+
+    integer i;
+
+    initial begin
+        // --- ADD THESE LINES FOR EPWAVE ---
+        $dumpfile("dump.vcd");
+        $dumpvars(0, tb_digital_laws);
+        // ----------------------------------
+
+        $display("Time\t A B C | DeMorgan1 (LHS/RHS) | Distributive1 (LHS/RHS)");
+        $display("---------------------------------------------------------------");
+        
+        for (i = 0; i < 8; i = i + 1) begin
+            {A, B, C} = i;
+            #10;
+            $display("%0t\t %b %b %b |      %b  ==  %b       |       %b  ==  %b", 
+                     $time, A, B, C, demorgan1_lhs, demorgan1_rhs, dist1_lhs, dist1_rhs);
+            
+            if ((demorgan1_lhs !== demorgan1_rhs) || (dist1_lhs !== dist1_rhs)) begin
+                $display("ERROR: Law violation detected!");
+                $finish;
+            end
+        end
+        
+        $display("---------------------------------------------------------------");
+        $display("SUCCESS: All digital laws verified successfully!");
+        $finish;
+    end
+endmodule
+
+
