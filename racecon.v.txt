@@ -1,0 +1,83 @@
+// 1. The Buggy Code with a Race Condition
+module race_condition (
+    input wire clk,
+    input wire d,
+    output reg a,
+    output reg b
+);
+
+    // Block 1: Updates 'a' on clock edge using BLOCKING assignment
+    always @(posedge clk) begin
+        a = d;
+    end
+
+    // Block 2: Reads 'a' on the same clock edge using BLOCKING assignment
+    always @(posedge clk) begin
+        b = a; // RACE CONDITION
+    end
+
+endmodule
+
+// 2. The Fixed Code (Race-Free)
+module race_free (
+    input wire clk,
+    input wire d,
+    output reg a,
+    output reg b
+);
+
+    // Block 1: Uses non-blocking assignment
+    always @(posedge clk) begin
+        a <= d;
+    end
+
+    // Block 2: Correctly samples the value of 'a' before the clock edge
+    always @(posedge clk) begin
+        b <= a; // Deterministic
+    end
+
+endmodule// Code your testbench here
+// or browse Examples
+module tb;
+    reg clk;
+    reg d;
+    wire a_race, b_race;
+    wire a_fixed, b_fixed;
+
+    // Instantiate race condition design
+    race_condition uut_race (
+        .clk(clk),
+        .d(d),
+        .a(a_race),
+        .b(b_race)
+    );
+
+    // Instantiate fixed design
+    race_free uut_fixed (
+        .clk(clk),
+        .d(d),
+        .a(a_fixed),
+        .b(b_fixed)
+    );
+
+    // Clock generator (10 unit period)
+    always #5 clk = ~clk;
+
+    initial begin
+      $dumpfile("dump.vcd");
+        $dumpvars(0, tb);
+        // Initialize inputs
+        clk = 0;
+        d = 0;
+
+        $monitor("Time=%0t | d=%b | Race: a=%b b=%b | Fixed: a=%b b=%b", 
+                  $time, d, a_race, b_race, a_fixed, b_fixed);
+
+        #7 d = 1;
+        #10 d = 0;
+        #10 d = 1;
+        #20 $finish;
+    end
+endmodule
+
+
