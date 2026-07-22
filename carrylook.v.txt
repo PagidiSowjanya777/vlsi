@@ -1,0 +1,105 @@
+module cla4(
+    input  [3:0] A,
+    input  [3:0] B,
+    input        Cin,
+    output [3:0] Sum,
+    output       Cout
+);
+
+wire [3:0] P;
+wire [3:0] G;
+wire C1, C2, C3, C4;
+
+// Generate and Propagate
+assign P = A ^ B;
+assign G = A & B;
+
+// Carry Logic
+assign C1 = G[0] | (P[0] & Cin);
+
+assign C2 = G[1] |
+            (P[1] & G[0]) |
+            (P[1] & P[0] & Cin);
+
+assign C3 = G[2] |
+            (P[2] & G[1]) |
+            (P[2] & P[1] & G[0]) |
+            (P[2] & P[1] & P[0] & Cin);
+
+assign C4 = G[3] |
+            (P[3] & G[2]) |
+            (P[3] & P[2] & G[1]) |
+            (P[3] & P[2] & P[1] & G[0]) |
+            (P[3] & P[2] & P[1] & P[0] & Cin);
+
+// Sum Logic
+assign Sum[0] = P[0] ^ Cin;
+assign Sum[1] = P[1] ^ C1;
+assign Sum[2] = P[2] ^ C2;
+assign Sum[3] = P[3] ^ C3;
+
+// Final Carry
+assign Cout = C4;
+
+endmodule
+// Code your testbench here
+// or browse Examples
+`timescale 1ns/1ps
+
+module tb_cla4;
+
+reg [3:0] A;
+reg [3:0] B;
+reg Cin;
+
+wire [3:0] Sum;
+wire Cout;
+
+// Instantiate the Design Under Test (DUT)
+cla4 uut (
+    .A(A),
+    .B(B),
+    .Cin(Cin),
+    .Sum(Sum),
+    .Cout(Cout)
+);
+
+initial begin
+    // Create VCD waveform file
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb_cla4);
+
+    $display("Time\tA\tB\tCin\tSum\tCout");
+    $monitor("%0t\t%b\t%b\t%b\t%b\t%b",
+             $time, A, B, Cin, Sum, Cout);
+
+    // Test Case 1
+    A = 4'b0000; B = 4'b0000; Cin = 0;
+    #10;
+
+    // Test Case 2
+    A = 4'b0011; B = 4'b0010; Cin = 0;
+    #10;
+
+    // Test Case 3
+    A = 4'b0101; B = 4'b0011; Cin = 0;
+    #10;
+
+    // Test Case 4
+    A = 4'b1111; B = 4'b0001; Cin = 0;
+    #10;
+
+    // Test Case 5
+    A = 4'b1010; B = 4'b0110; Cin = 0;
+    #10;
+
+    // Test Case 6
+    A = 4'b1111; B = 4'b1111; Cin = 1;
+    #10;
+
+    $finish;
+end
+
+endmodule
+
+
